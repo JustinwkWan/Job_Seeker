@@ -10,13 +10,13 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
    ```bash
    python3 scripts/fetch_listings.py --days 4 --out /tmp/candidates.json
    ```
-   This clones SimplifyJobs/New-Grad-Positions, keeps active postings from the last 4 days that match
-   the roles and locations in `profile.md`, and drops anything already in `data/jobs.csv`.
-   Use `--days 4` so Monday's run covers the weekend.
+   This clones four community job lists from GitHub (SimplifyJobs, vanshb03, speedyapply, jobright),
+   keeps postings from the last 4 days that match the roles and locations in `profile.md`, merges the
+   same job listed in several places, and drops anything already in `data/jobs.csv`. Expect roughly
+   100–150 candidates; `--days 4` lets Monday's run cover the weekend.
 
-2. **Supplementary searches (3–5 WebSearch calls).** The Simplify list skews toward "2027 New Grad"
-   roles, which often exclude a June 2026 graduate. Search for early-career roles it misses, restricting
-   to ATS domains (`jobs.ashbyhq.com`, `job-boards.greenhouse.io`, `jobs.lever.co`, `amazon.jobs`), e.g.:
+2. **Supplementary searches (3–5 WebSearch calls)** for early-career roles the lists miss, restricted to
+   ATS domains (`jobs.ashbyhq.com`, `job-boards.greenhouse.io`, `jobs.lever.co`, `amazon.jobs`), e.g.:
    - "Software Engineer I" Seattle
    - "AI Engineer" entry level OR "0-2 years"
    - "Backend Engineer" new grad remote
@@ -24,29 +24,39 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
    - "Machine Learning Engineer I" California
    Add only postings from the last ~7 days that aren't already in `data/jobs.csv`.
 
-3. **Read job descriptions.** Read up to **15** postings, highest `title_prescore` first, skipping
-   obvious mismatches. Job URLs from the candidates file can't be fetched directly; for each, WebSearch
-   `"<company> <title>"` with `allowed_domains` set to the ATS domains above (add the company's careers
-   domain if known), then WebFetch the matching result. If the official page isn't found, an aggregator
-   copy (builtin, techstars, anitab, freehire, employbl) is fine; note if it's an older or closed copy.
-   Extract: required quals, preferred quals, YOE, degree, **graduation window**, location, salary,
+3. **Read job descriptions — target 5–8 "Apply today" jobs.** Work down the candidates in order
+   (`title_prescore`, then number of lists carrying it), preferring Seattle and Remote, and read
+   **at most 3 postings per company per day** so one big hirer (e.g. TikTok) can't crowd out the rest.
+   Stop once **8 jobs score 80+** or you've read **30** descriptions. Job URLs from the candidates file
+   can't be fetched directly; for each, WebSearch `"<company>" "<exact title>"` with `allowed_domains` set to
+   the ATS domains above plus the company's careers domain if known (e.g. lifeattiktok.com,
+   pinterestcareers.com, careersatdoordash.com, careers.microsoft.com), then WebFetch the matching result.
+   If no official page turns up, retry once without `allowed_domains`; an aggregator copy (builtin,
+   techstars, anitab, freehire, employbl, general-catalyst/8vc job boards) is fine, but note if it's an older or
+   closed copy and check the location matches. If a page has no requirements text, move on.
+   Extract: required quals, preferred quals, YOE, degree, graduation window, location, salary,
    clearance/export control, and every named technology.
 
 4. **Score** each read posting with `rubric.md` against `profile.md`. Apply the eligibility gate first.
+   A class-of-2027 graduation window is **not** a gate: score it (level fit 15) and add the 🎓 flag.
 
 5. **Write `daily/YYYY-MM-DD.md`** using the layout of the most recent file in `daily/`:
-   summary line → **Apply today** → **Worth a look** → **Stretch / Skip** → **Not eligible** (reason) →
-   **Not read yet** (title-only table) → **Resume notes** (keyword gaps that showed up in 2+ postings today).
+   summary line → **Apply today** (5–8, best first) → **Worth a look** → **Stretch / Skip** →
+   **Not eligible** (reason) → **Not read yet** (top ~15 unread by title, as a table) →
+   **Resume notes** (keyword gaps that showed up in 2+ postings today).
    Each scored job: company, title, score, location, salary, posted date, apply link, a one-line score
    breakdown, why it fits, matched keywords, missing keywords split into "you have it, add it" vs
    "true gap", and one resume tweak. If nothing new was found, still write the file saying so.
 
-6. **Append every posting from today to `data/jobs.csv`** (read or not, so nothing repeats tomorrow).
+6. **Append every posting that appears in today's file to `data/jobs.csv`** (scored, not eligible, or in
+   the "Not read yet" table) so it doesn't repeat tomorrow. Candidates that weren't shown at all are
+   **not** recorded; they stay eligible for tomorrow's run while they're inside the 4-day window.
    Columns:
    `date_found,id,company,title,location_bucket,locations,url,date_posted,category,jd_read,eligible,score,tier,yoe_required,grad_window,salary,skills,missing_keywords,flags,source`
    - `skills`: semicolon-separated **canonical** names (vocabulary below) of every technology the JD names. Empty if not read.
    - `missing_keywords`: canonical names from the JD that are not on the resume.
-   - `source`: `simplify` or `search`.
+   - `source`: semicolon-separated list from the candidate's `sources` (`simplify`, `vansh`, `speedyapply`, `jobright`), or `search`.
+   - `flags`: include `class-of-2027 window` when it applies, so the monthly report can track it.
    - Use Python's `csv` module to append; never hand-edit quoting.
 
 7. **Commit and push**: `git add -A && git commit -m "Daily search YYYY-MM-DD: N new, M scored" && git push`.

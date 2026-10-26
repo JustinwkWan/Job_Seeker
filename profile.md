@@ -7,7 +7,9 @@ The scoring agent reads this file every run. Edit it when your resume or targets
 - **Locations:** Seattle area (incl. Bellevue, Redmond, Kirkland), anywhere in California, New York (NYC or state), Remote (US)
 - **Level:** New grad, Software Engineer I, early career, 0–2 years
 - **Graduation:** B.S. Computer Science, University of Washington — **June 2026** (inferred from resume dates; confirm)
-  - This matters: many "2027 New Grad" postings require graduating Dec 2026 – Summer 2027 and exclude June 2026 grads.
+  - Many "2027 New Grad" postings ask for a Dec 2026 – Summer 2027 graduation. Justin applies to these anyway
+    (forms usually let him continue), so they're scored with a small level deduction and a 🎓 flag, not excluded.
+  - Postings that accept recent grads or name June 2026 in their window score full marks on level fit.
 
 ## Skills listed on the resume (literal — what an ATS sees)
 - **Languages:** Python, Java, TypeScript, HTML, CSS, C++, C

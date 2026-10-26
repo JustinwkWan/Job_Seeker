@@ -22,7 +22,12 @@ An automated job search for **new-grad / entry-level Software Engineer, AI/ML En
 | `scripts/fetch_listings.py` | Pulls and filters listings from SimplifyJobs/New-Grad-Positions |
 
 ## Sources
-- [SimplifyJobs/New-Grad-Positions](https://github.com/SimplifyJobs/New-Grad-Positions), a community-maintained list updated daily
-- Targeted web searches of Ashby, Greenhouse, Lever, and Amazon job boards for early-career roles the list misses
+Four community-maintained lists on GitHub, all updated daily, merged and deduplicated:
+- [SimplifyJobs/New-Grad-Positions](https://github.com/SimplifyJobs/New-Grad-Positions)
+- [vanshb03/New-Grad-2027](https://github.com/vanshb03/New-Grad-2027)
+- [speedyapply/2026-SWE-College-Jobs](https://github.com/speedyapply/2026-SWE-College-Jobs) (includes salaries)
+- [jobright-ai/2026-Software-Engineer-New-Grad](https://github.com/jobright-ai/2026-Software-Engineer-New-Grad) (largest; broad early-career coverage)
+
+Plus targeted web searches of Ashby, Greenhouse, Lever, and Amazon job boards for early-career roles the lists miss.
 
 LinkedIn and Indeed aren't used; they block automated access.
