@@ -1,0 +1,26 @@
+{
+  "_note": "Companies checked every daily run. type=workday/greenhouse/ashby are pulled by scripts/fetch_watchlist.py; type=search are looked up with WebSearch (see RUNBOOK.md). Add a company by copying an entry.",
+  "companies": [
+    {"name": "Boeing", "type": "workday", "tenant": "boeing", "wd": "wd1", "sites": ["EXTERNAL_CAREERS"]},
+    {"name": "Blue Origin", "type": "workday", "tenant": "blueorigin", "wd": "wd5", "sites": ["blueorigin"]},
+    {"name": "Expedia Group", "type": "workday", "tenant": "expedia", "wd": "wd108", "sites": ["search"]},
+    {"name": "T-Mobile", "type": "workday", "tenant": "tmobile", "wd": "wd1", "sites": ["External"]},
+    {"name": "Salesforce", "type": "workday", "tenant": "salesforce", "wd": "wd12", "sites": ["Futureforce_NewGradRoles", "External_Career_Site"]},
+    {"name": "F5", "type": "workday", "tenant": "ffive", "wd": "wd5", "sites": ["f5jobs"]},
+    {"name": "Zillow", "type": "workday", "tenant": "zillow", "wd": "wd5", "sites": ["Zillow_Group_External"]},
+    {"name": "Tanium", "type": "greenhouse", "board": "tanium"},
+    {"name": "Okta (incl. Auth0)", "type": "greenhouse", "board": "okta"},
+    {"name": "Allen Institute for AI", "type": "greenhouse", "board": "thealleninstitute"},
+    {"name": "Snowflake", "type": "ashby", "board": "snowflake"},
+
+    {"name": "Meta", "type": "search", "domains": ["www.metacareers.com"]},
+    {"name": "Google", "type": "search", "domains": ["www.google.com", "careers.google.com"]},
+    {"name": "Stripe", "type": "search", "domains": ["stripe.com"]},
+    {"name": "Uber", "type": "search", "domains": ["www.uber.com", "jobs.uber.com", "university-uber.icims.com"]},
+    {"name": "Oracle", "type": "search", "domains": ["careers.oracle.com", "eeho.fa.us2.oraclecloud.com"]},
+    {"name": "PACCAR", "type": "search", "domains": ["jobs.paccar.com"]},
+    {"name": "Alaska Airlines", "type": "search", "domains": ["careers.alaskaair.com", "corporatejobs-alaskaair.icims.com"]},
+    {"name": "Costco", "type": "search", "domains": ["careers.costco.com"]},
+    {"name": "Redfin", "type": "search", "domains": ["redfin.com", "rocketcompanies.com"], "_note": "Old Workday board returns 403 after the Rocket acquisition"}
+  ]
+}

@@ -15,6 +15,19 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
    same job listed in several places, and drops anything already in `data/jobs.csv`. Expect roughly
    100–150 candidates; `--days 4` lets Monday's run cover the weekend.
 
+1b. **Check the watchlist companies** (`data/watchlist.json`, ~20 Seattle-area employers Justin picked)
+   ```bash
+   python3 scripts/fetch_watchlist.py --days 7 --out /tmp/watchlist.json
+   ```
+   This queries Workday, Greenhouse, and Ashby boards directly and returns entry-level software roles in
+   his locations **with the full job description included**, so score these from the `description`
+   field without fetching the page. Watchlist jobs go first in the reading order and are labeled
+   ⭐ Watchlist in the daily file. Takes ~2 minutes. For each `"type": "search"` company (Meta, Google,
+   Stripe, Uber, Oracle, PACCAR, Alaska Airlines, Costco, Redfin), run one WebSearch such as
+   `"<company>" software engineer (new grad OR "early career" OR "entry level" OR university) Seattle`
+   with `allowed_domains` set to that company's `domains`, and add any posting from the last ~7 days.
+   If a board errors, note it in the daily file and continue.
+
 2. **Supplementary searches (3–5 WebSearch calls)** for early-career roles the lists miss, restricted to
    ATS domains (`jobs.ashbyhq.com`, `job-boards.greenhouse.io`, `jobs.lever.co`, `amazon.jobs`), e.g.:
    - "Software Engineer I" Seattle
@@ -59,7 +72,7 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
    - `flags`: include `class-of-2027 window` when it applies, so the monthly report can track it.
    - Use Python's `csv` module to append; never hand-edit quoting.
 
-7. **Commit and push**: `git add -A && git commit -m "Daily search YYYY-MM-DD: N new, M scored" && git push`.
+7. **Commit and push**: `git add -A && git commit -m "Daily search YYYY-MM-DD: N new, M scored" && git pull --rebase && git push`.
 
 ---
 
