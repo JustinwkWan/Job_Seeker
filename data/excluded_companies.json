@@ -1,0 +1,11 @@
+{
+  "_note": "Companies to leave out of every search: scripts/fetch_listings.py drops them, and the RUNBOOK's web searches skip them. 'match' is a case-insensitive regex tested against the posting's company name. Remove an entry to start seeing that company again.",
+  "companies": [
+    {
+      "name": "Amazon",
+      "match": "^(amazon|aws)\\b",
+      "reason": "Already interviewed (did not move on)",
+      "since": "2026-10-30"
+    }
+  ]
+}

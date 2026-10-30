@@ -6,6 +6,10 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
 
 ## Daily run (weekdays, ~11am Pacific)
 
+**Excluded companies:** skip every company listed in `data/excluded_companies.json` (currently Amazon/AWS,
+already interviewed). `fetch_listings.py` drops them automatically; also leave them out of web searches,
+the "Not read yet" table, and every section of the daily file.
+
 1. **Pull candidates**
    ```bash
    python3 scripts/fetch_listings.py --days 4 --out /tmp/candidates.json
@@ -29,7 +33,7 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
    If a board errors, note it in the daily file and continue.
 
 2. **Supplementary searches (3–5 WebSearch calls)** for early-career roles the lists miss, restricted to
-   ATS domains (`jobs.ashbyhq.com`, `job-boards.greenhouse.io`, `jobs.lever.co`, `amazon.jobs`), e.g.:
+   ATS domains (`jobs.ashbyhq.com`, `job-boards.greenhouse.io`, `jobs.lever.co`), e.g.:
    - "Software Engineer I" Seattle
    - "AI Engineer" entry level OR "0-2 years"
    - "Backend Engineer" new grad remote

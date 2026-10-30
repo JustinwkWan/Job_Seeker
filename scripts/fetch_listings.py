@@ -29,6 +29,7 @@ from datetime import datetime, timedelta, timezone
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JOBS_CSV = os.path.join(REPO_ROOT, "data", "jobs.csv")
+EXCLUDED_JSON = os.path.join(REPO_ROOT, "data", "excluded_companies.json")
 PACIFIC = timezone(timedelta(hours=-8))  # date math only; a day either way doesn't matter
 
 SOURCES = {
@@ -134,6 +135,15 @@ def load_seen():
     return seen
 
 
+def load_excluded():
+    """Company-name regex for data/excluded_companies.json (None if the file is missing or empty)."""
+    if not os.path.exists(EXCLUDED_JSON):
+        return None
+    with open(EXCLUDED_JSON) as f:
+        pats = [c["match"] for c in json.load(f).get("companies", []) if c.get("match")]
+    return re.compile("|".join(f"(?:{p})" for p in pats), re.I) if pats else None
+
+
 def clone(url: str) -> str:
     d = tempfile.mkdtemp(prefix="jobs_")
     subprocess.run(["git", "clone", "--depth", "1", "--quiet", url, d], check=True)
@@ -231,12 +241,15 @@ def main():
             print(f"WARNING: source {name} failed: {e}", file=sys.stderr)
 
     seen = load_seen()
+    excluded = load_excluded()
     cutoff = datetime.now(PACIFIC).date() - timedelta(days=args.days)
     merged = {}
     for x in raw:
         if x["date_posted"] < cutoff:
             continue
         title = x["title"]
+        if excluded and excluded.search(x["company"].strip()):
+            continue
         if EXCLUDE_TITLE.search(title) or not INCLUDE_TITLE.search(title):
             continue
         if LEVEL_UP.search(title) and not re.search(r"new grad|early career|university", title, re.I):

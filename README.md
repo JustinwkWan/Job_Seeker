@@ -28,6 +28,6 @@ Four community-maintained lists on GitHub, all updated daily, merged and dedupli
 - [speedyapply/2026-SWE-College-Jobs](https://github.com/speedyapply/2026-SWE-College-Jobs) (includes salaries)
 - [jobright-ai/2026-Software-Engineer-New-Grad](https://github.com/jobright-ai/2026-Software-Engineer-New-Grad) (largest; broad early-career coverage)
 
-Plus targeted web searches of Ashby, Greenhouse, Lever, and Amazon job boards for early-career roles the lists miss.
+Plus targeted web searches of Ashby, Greenhouse, and Lever job boards for early-career roles the lists miss.
 
 LinkedIn and Indeed aren't used; they block automated access.
