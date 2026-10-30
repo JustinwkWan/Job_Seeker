@@ -6,6 +6,12 @@
       "match": "^(amazon|aws)\\b",
       "reason": "Already interviewed (did not move on)",
       "since": "2026-10-30"
+    },
+    {
+      "name": "TikTok",
+      "match": "^tiktok\\b",
+      "reason": "Asked to remove",
+      "since": "2026-10-30"
     }
   ]
 }

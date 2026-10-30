@@ -6,8 +6,8 @@ The scheduled tasks follow this file. Edit it to change how the search behaves.
 
 ## Daily run (weekdays, ~11am Pacific)
 
-**Excluded companies:** skip every company listed in `data/excluded_companies.json` (currently Amazon/AWS,
-already interviewed). `fetch_listings.py` drops them automatically; also leave them out of web searches,
+**Excluded companies:** skip every company listed in `data/excluded_companies.json` (currently Amazon/AWS and
+TikTok). `fetch_listings.py` drops them automatically; also leave them out of web searches,
 the "Not read yet" table, and every section of the daily file.
 
 1. **Pull candidates**
@@ -43,10 +43,10 @@ the "Not read yet" table, and every section of the daily file.
 
 3. **Read job descriptions — target 5–8 "Apply today" jobs.** Work down the candidates in order
    (`title_prescore`, then number of lists carrying it), preferring Seattle and Remote, and read
-   **at most 3 postings per company per day** so one big hirer (e.g. TikTok) can't crowd out the rest.
+   **at most 3 postings per company per day** so one big hirer can't crowd out the rest.
    Stop once **8 jobs score 80+** or you've read **30** descriptions. Job URLs from the candidates file
    can't be fetched directly; for each, WebSearch `"<company>" "<exact title>"` with `allowed_domains` set to
-   the ATS domains above plus the company's careers domain if known (e.g. lifeattiktok.com,
+   the ATS domains above plus the company's careers domain if known (e.g.
    pinterestcareers.com, careersatdoordash.com, careers.microsoft.com), then WebFetch the matching result.
    If no official page turns up, retry once without `allowed_domains`; an aggregator copy (builtin,
    techstars, anitab, freehire, employbl, general-catalyst/8vc job boards) is fine, but note if it's an older or
