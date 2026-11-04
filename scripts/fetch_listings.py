@@ -11,6 +11,11 @@ Sources (all GitHub repos, updated daily):
   vansh       vanshb03/New-Grad-2027                 (.github/scripts/listings.json, same schema)
   speedyapply speedyapply/2026-SWE-College-Jobs      (NEW_GRAD_USA.md table; has salary)
   jobright    jobright-ai/2026-Software-Engineer-New-Grad (README.md table; large, noisy)
+  speedyapply-ai speedyapply/2027-AI-College-Jobs     (NEW_GRAD_USA.md table, same format as speedyapply)
+  resumax     resumax/new-grad-tech-jobs             (README.md tables by category; new-grad AND experienced
+                                                       roles, so the run's 2-years-or-less check matters most here)
+  dreamworkhq dreamworkhq/New-Grad-Software-Engineer-Jobs (data/listings.json; exact postedAt timestamps;
+                                                       links go to dreamworkhq pages, so find the company's posting)
 
 The same job often appears in several lists; it is merged into one candidate and every
 source is recorded. Links on sites in data/blocked_sites.json are blanked (url = "").
@@ -39,6 +44,9 @@ SOURCES = {
     "vansh": "https://github.com/vanshb03/New-Grad-2027.git",
     "speedyapply": "https://github.com/speedyapply/2026-SWE-College-Jobs.git",
     "jobright": "https://github.com/jobright-ai/2026-Software-Engineer-New-Grad.git",
+    "speedyapply-ai": "https://github.com/speedyapply/2027-AI-College-Jobs.git",
+    "resumax": "https://github.com/resumax/new-grad-tech-jobs.git",
+    "dreamworkhq": "https://github.com/dreamworkhq/New-Grad-Software-Engineer-Jobs.git",
 }
 
 # ---------- location filter: Seattle area, California, New York, Remote (US) ----------
@@ -74,7 +82,8 @@ EXCLUDE_TITLE = re.compile(
     r"verification|technician|sales|recruit|marketing|accountant|clearance|ts/sci|"
     r"analyst(?!.*engineer)|research scientist|data scientist|annotator|teleoperator|"
     r"temporary|part[- ]time|contract|master'?s|embedded|mainframe|salesforce|sap|"
-    r"servicenow developer|qa|test engineer|support engineer|helpdesk|seasonal|quality assurance|military)\b",
+    r"servicenow developer|qa|test engineer|support engineer|helpdesk|seasonal|quality assurance|military|"
+    r"vice president|vp|photonic|harness design|avionics|environmental qualification|mission operations)\b",
     re.I)
 # level III+ titles are almost always 3+ years. Level II / plain titles are kept: the run reads the
 # description and keeps the job only if it asks for 2 years or less (see RUNBOOK "Experience rule").
@@ -187,7 +196,7 @@ def strip_tags(s):
     return html.unescape(re.sub(r"<[^>]+>", "", s)).strip()
 
 
-def parse_speedyapply(path):
+def parse_speedyapply(path, source="speedyapply"):
     out, today = [], datetime.now(PACIFIC).date()
     for line in open(path, encoding="utf-8"):
         if not line.startswith("| <a") and not line.startswith("| **"):
@@ -204,7 +213,7 @@ def parse_speedyapply(path):
         out.append(dict(
             id="sa-" + norm(m.group(1))[-24:], company=company, title=title,
             locations=[l.strip() for l in re.split(r"<br\s*/?>|;", cells[2]) if l.strip()] or [loc],
-            url=m.group(1), category="", salary=salary, source="speedyapply",
+            url=m.group(1), category="", salary=salary, source=source,
             date_posted=today - timedelta(days=int(age.group(1)))))
     return out
 
@@ -237,6 +246,68 @@ def parse_jobright(path):
     return out
 
 
+RESUMAX_SKIP_SECTIONS = {"hardware & embedded", "hardware and embedded", "mobile"}
+
+
+def parse_resumax(path):
+    """README tables grouped under '## <Category>' headings:
+    | **[Company](resumax link)** 🆕 | Role | Location | [Apply](ats url) | tailor link | 3d |"""
+    out, today, section = [], datetime.now(PACIFIC).date(), ""
+    for line in open(path, encoding="utf-8"):
+        if line.startswith("## "):
+            section = line[3:].strip().lower()
+            continue
+        if not line.startswith("| **[") or section in RESUMAX_SKIP_SECTIONS:
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 6:
+            continue
+        m = re.match(r"\*\*\[(.+?)\]", cells[0])
+        company = html.unescape(m.group(1)) if m else strip_tags(cells[0])
+        remote = "🌐" in cells[0]
+        title = strip_tags(cells[1])
+        a = re.search(r"\]\((https?://[^)\s]+)\)", cells[3]) or re.search(r'href="([^"]+)"', cells[3])
+        age = re.match(r"(\d+)\s*d", strip_tags(cells[-1]))
+        if not a or not age or not title:
+            continue
+        locs = [l.strip() for l in re.split(r";|<br\s*/?>", cells[2]) if l.strip()]
+        # resumax ends locations with a lowercase country code: "Sunnyvale, CA, us" -> "Sunnyvale, CA";
+        # anything else ("Toronto, ON, ca" = Canada, "bundesweit, de") is tagged so it can't pass as California
+        fixed = []
+        for l in locs:
+            cc = re.search(r",\s*([a-z]{2})$", l)
+            fixed.append(l[:cc.start()] if cc and cc.group(1) == "us" else (f"{l} [country {cc.group(1)}]" if cc else l))
+        locs = fixed
+        if remote and any(re.search(r"\b(us|usa|united states)\b", l, re.I) for l in locs):
+            locs.append("Remote")
+        out.append(dict(
+            id="rx-" + norm(a.group(1))[-28:], company=company, title=title, locations=locs or [strip_tags(cells[2])],
+            url=a.group(1), category=section, salary="", source="resumax",
+            date_posted=today - timedelta(days=int(age.group(1)))))
+    return out
+
+
+def parse_dreamworkhq(path):
+    out = []
+    for x in json.load(open(path)).get("listings", []):
+        try:
+            when = datetime.fromisoformat(x["postedAt"].replace("Z", "+00:00"))
+        except Exception:
+            continue
+        loc = re.sub(r"\s*\((usa|us|united states)\)\s*$", "", x.get("location") or "", flags=re.I)
+        locs = [l.strip() for l in loc.split(";") if l.strip()]
+        if (x.get("remoteType") or "").lower() == "remote" and re.search(r"\b(usa|us|united states)\b", x.get("location") or "", re.I):
+            locs.append("Remote")
+        sal = ""
+        if x.get("salaryMin"):
+            sal = f"${x['salaryMin']:,}-${x.get('salaryMax') or x['salaryMin']:,}" + (f"/{x['salaryPeriod']}" if x.get("salaryPeriod") else "")
+        out.append(dict(
+            id="dw-" + x["id"], company=x.get("company", ""), title=x.get("title", ""), locations=locs,
+            url=x.get("url", "").split("?")[0], category=x.get("aiRoleKind", ""), salary=sal, source="dreamworkhq",
+            date_posted=when.astimezone(PACIFIC).date()))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=1, help="look back this many days (1 = posted today or yesterday, Pacific; the run checks the exact posting date on each page)")
@@ -253,6 +324,12 @@ def main():
                 raw += parse_speedyapply(os.path.join(d, "NEW_GRAD_USA.md"))
             elif name == "jobright":
                 raw += parse_jobright(os.path.join(d, "README.md"))
+            elif name == "speedyapply-ai":
+                raw += parse_speedyapply(os.path.join(d, "NEW_GRAD_USA.md"), name)
+            elif name == "resumax":
+                raw += parse_resumax(os.path.join(d, "README.md"))
+            elif name == "dreamworkhq":
+                raw += parse_dreamworkhq(os.path.join(d, "data", "listings.json"))
         except Exception as e:  # one broken source shouldn't kill the run
             print(f"WARNING: source {name} failed: {e}", file=sys.stderr)
 
@@ -286,7 +363,8 @@ def main():
             m["location_buckets"] = sorted(set(m["location_buckets"]) | set(buckets))
             m["salary"] = m["salary"] or x["salary"]
             # prefer a direct ATS link over a redirect link or a blanked (blocked-site) one
-            if x["url"] and (not m["url"] or "go.vansh" in m["url"]) and "go.vansh" not in x["url"]:
+            indirect = lambda u: "go.vansh" in u or "dreamworkhq.com" in u
+            if x["url"] and (not m["url"] or indirect(m["url"])) and not indirect(x["url"]):
                 m["url"] = x["url"]
             continue
         merged[key] = dict(

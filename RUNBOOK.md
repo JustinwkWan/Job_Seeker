@@ -34,7 +34,8 @@ in parallel, or split the candidate list across subagents.
    ```bash
    python3 scripts/fetch_listings.py --days 1 --out /tmp/candidates.json
    ```
-   This clones four community job lists from GitHub (SimplifyJobs, vanshb03, speedyapply, jobright),
+   This clones seven community job lists from GitHub (SimplifyJobs, vanshb03, speedyapply SWE + AI, jobright,
+   resumax, dreamworkhq),
    keeps postings the lists date today or yesterday that match the roles and locations in `profile.md`,
    merges the same job listed in several places, and drops anything already in `data/jobs.csv`.
    The list date is only a first filter; step 3 checks the company's own date.
@@ -116,7 +117,9 @@ in parallel, or split the candidate list across subagents.
    - `date_posted`: the company's posting date when you found one, otherwise the list's date.
    - `skills`: semicolon-separated **canonical** names (vocabulary below) of every technology the JD names. Empty if not read.
    - `missing_keywords`: canonical names from the JD that are not on the resume.
-   - `source`: semicolon-separated list from the candidate's `sources` (`simplify`, `vansh`, `speedyapply`, `jobright`, `watchlist`, `boards`), or `search`.
+   - `source`: semicolon-separated list from the candidate's `sources` (`simplify`, `vansh`, `speedyapply`, `speedyapply-ai`, `jobright`, `resumax`, `dreamworkhq`, `watchlist`, `boards`), or `search`.
+   - resumax mixes new-grad and experienced roles, so apply the 2-years-or-less rule strictly there. dreamworkhq links go to
+     dreamworkhq.com pages: use them to read the JD if needed, but link the company's own posting when you can find it.
    - `flags`: include `class-of-2027 window` when it applies, so the monthly report can track it.
    - Use Python's `csv` module to append; never hand-edit quoting.
 
