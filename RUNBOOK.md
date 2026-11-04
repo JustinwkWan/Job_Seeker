@@ -52,6 +52,19 @@ in parallel, or split the candidate list across subagents.
    with `allowed_domains` set to that company's `domains`, and keep only postings from the last 24 hours.
    If a board errors, note it in the daily file and continue.
 
+1c. **Wider net: plain Software Engineer / Backend Engineer roles** (`data/boards.json`, ~120 tech-company boards)
+   ```bash
+   python3 scripts/fetch_watchlist.py --file data/boards.json --days 1 --out /tmp/boards.json
+   ```
+   Same script and output fields as 1b, but over a wider set of Greenhouse / Ashby / Lever boards, and these
+   jobs are **not** labeled ⭐ Watchlist (source `boards`). Titles don't need "new grad" or "I": any software /
+   backend / full-stack / AI-ML engineer title without a senior qualifier (Senior, Staff, Principal, Lead, III+)
+   is checked. **Experience rule:** the script drops a posting whose description asks for more than 2 years
+   (`MAX_YOE = 2`). When you score one, confirm the required years yourself: keep it only if the *required*
+   experience is 2 years or less (0–2, 1+, 2+, "2–4" all pass; 3+ goes under Not eligible). A posting that names
+   no years and no level is scored as 0–2 years (level fit 17) and flagged "no level stated". Takes ~1–2 minutes.
+   To add a company, copy an entry in `data/boards.json` (the slug is in its job-board URL).
+
 2. **Supplementary searches (3–5 WebSearch calls)** for early-career roles the lists miss, restricted to
    ATS domains (`jobs.ashbyhq.com`, `job-boards.greenhouse.io`, `jobs.lever.co`), e.g.:
    - "Software Engineer I" Seattle
@@ -59,10 +72,13 @@ in parallel, or split the candidate list across subagents.
    - "Backend Engineer" new grad remote
    - "Software Engineer I" New York
    - "Machine Learning Engineer I" California
+   - "Software Engineer" "0-2 years" OR "1+ years" Seattle
+   - "Backend Engineer" "0-2 years" OR "1+ years of experience"
    Search results carry no dates, so open each hit that isn't already in `data/jobs.csv` and keep it only
    if its posting date is within the last 24 hours.
 
-3. **Read every fresh candidate's job description.** Watchlist jobs first, then Seattle and Remote, then the
+3. **Read every fresh candidate's job description.** Watchlist and boards jobs already carry their description
+   (score them from it). Watchlist jobs first, then Seattle and Remote, then the
    rest by `title_prescore`. Job URLs from the candidates file can't be fetched directly; for each, WebSearch
    `"<company>" "<exact title>"` with `allowed_domains` set to the ATS domains above plus the company's careers
    domain if known (e.g. pinterestcareers.com, careersatdoordash.com, careers.microsoft.com), then WebFetch the
@@ -100,7 +116,7 @@ in parallel, or split the candidate list across subagents.
    - `date_posted`: the company's posting date when you found one, otherwise the list's date.
    - `skills`: semicolon-separated **canonical** names (vocabulary below) of every technology the JD names. Empty if not read.
    - `missing_keywords`: canonical names from the JD that are not on the resume.
-   - `source`: semicolon-separated list from the candidate's `sources` (`simplify`, `vansh`, `speedyapply`, `jobright`), or `search`.
+   - `source`: semicolon-separated list from the candidate's `sources` (`simplify`, `vansh`, `speedyapply`, `jobright`, `watchlist`, `boards`), or `search`.
    - `flags`: include `class-of-2027 window` when it applies, so the monthly report can track it.
    - Use Python's `csv` module to append; never hand-edit quoting.
 

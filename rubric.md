@@ -10,7 +10,7 @@ A failing job is listed under **Not eligible** with the reason and not scored.
 | Check | Fails when |
 |---|---|
 | Degree | Requires an MS or PhD |
-| Experience | Requires 3+ years |
+| Experience | Requires 3+ years (2 years or less passes, whatever the title says) |
 | Clearance | Requires an *active* security clearance (eligibility to obtain one is only a flag) |
 | Location | The job isn't actually in Seattle / California / New York / Remote US once you read it |
 | Posting status | Page says it's closed / no longer accepting applications |

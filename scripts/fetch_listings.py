@@ -76,8 +76,9 @@ EXCLUDE_TITLE = re.compile(
     r"temporary|part[- ]time|contract|master'?s|embedded|mainframe|salesforce|sap|"
     r"servicenow developer|qa|test engineer|support engineer|helpdesk|seasonal|quality assurance|military)\b",
     re.I)
-# level II+ titles are usually 2+ years, unless the title itself says new grad / early career
-LEVEL_UP = re.compile(r"\b(ii|iii|iv|2|3)\b(?!.*\b(new grad|early career|university)\b)", re.I)
+# level III+ titles are almost always 3+ years. Level II / plain titles are kept: the run reads the
+# description and keeps the job only if it asks for 2 years or less (see RUNBOOK "Experience rule").
+LEVEL_UP = re.compile(r"\b(iii|iv|3|4)\b(?!.*\b(new grad|early career|university)\b)", re.I)
 INCLUDE_TITLE = re.compile(r"\b(engineer|engineering|developer|sde|swe|programmer|resident)\b", re.I)
 
 # title keywords -> rough relevance (pre-score only; the real score comes from the JD)

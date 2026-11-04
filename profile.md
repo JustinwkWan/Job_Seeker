@@ -6,6 +6,8 @@ The scoring agent reads this file every run. Edit it when your resume or targets
 - **Roles:** New-grad / entry-level Software Engineer, AI/ML Engineer, Backend Engineer
 - **Locations:** Seattle area (incl. Bellevue, Redmond, Kirkland), anywhere in California, New York (NYC or state), Remote (US)
 - **Level:** New grad, Software Engineer I, early career, 0–2 years
+  - Also plain **Software Engineer** / **Backend Engineer** titles (any level wording except Senior/Staff/Principal/Lead/III+)
+    whenever the description asks for **2 years of experience or less**.
 - **Graduation:** B.S. Computer Science, University of Washington — **June 2026** (inferred from resume dates; confirm)
   - Many "2027 New Grad" postings ask for a Dec 2026 – Summer 2027 graduation. Justin applies to these anyway
     (forms usually let him continue), so they're scored with a small level deduction and a 🎓 flag, not excluded.

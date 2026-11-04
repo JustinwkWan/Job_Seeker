@@ -3,16 +3,19 @@
 
 Usage:
     python3 scripts/fetch_watchlist.py [--days N] [--out watchlist_candidates.json]
+    python3 scripts/fetch_watchlist.py --file data/boards.json --days 1 --out boards.json   # wider net
 
-Companies and their job-board APIs live in data/watchlist.json. Supported board types:
+Companies and their job-board APIs live in data/watchlist.json (Justin's picks, labeled watchlist)
+and data/boards.json (a wider set of tech companies' boards, not labeled). Supported board types:
   workday     POST https://{tenant}.{wd}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
   greenhouse  GET  https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=true
   ashby       GET  https://api.ashbyhq.com/posting-api/job-board/{board}?includeCompensation=true
+  lever       GET  https://api.lever.co/v0/postings/{board}?mode=json
 Companies with "type": "search" have no public feed; the daily run looks them up with
 WebSearch instead (see RUNBOOK.md).
 
 Output has the same fields as fetch_listings.py plus `description` (plain text, trimmed),
-`yoe_min` (smallest "N+ years" found), and `watchlist: true`, so most of these can be
+`yoe_min` (smallest "N years of experience" found; postings asking for more than 2 are dropped), and `watchlist: true`, so most of these can be
 scored without fetching the posting page. Postings already in data/jobs.csv are skipped.
 """
 import argparse
@@ -92,8 +95,31 @@ def text_of(h: str) -> str:
     return re.sub(r"[ \t]+", " ", re.sub(r"\n\s*\n+", "\n", t)).strip()
 
 
+MAX_YOE = 2  # Justin's rule: keep roles that ask for 2 years of experience or less
+_NUMS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "ten": 10}
+_YEARS = re.compile(
+    r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|ten)\s*(?:\+|plus)?\s*"
+    r"(?:(?:-|–|—|to)\s*(?:\d{1,2}|two|three|four|five|six|seven|eight|ten)\s*\+?\s*)?"
+    r"(?:\(\d{1,2}\)\s*)?(?:or more\s*)?years?\b", re.I)
+
+
 def yoe_min(desc: str):
-    vals = [int(m) for m in re.findall(r"(\d{1,2})\s*\+?\s*(?:or more\s*)?years?", desc, re.I) if int(m) < 20]
+    """Smallest lower bound of an 'N years ... experience' requirement, or None if none is stated.
+    Only counts a match with 'experience' (or 'working'/'professional'/'industry') nearby, so
+    'graduated within 2 years' or '20 years in business' don't count. Lenient on purpose: if a JD says
+    '5+ years preferred, 2+ required' this returns 2 and the scorer reads the JD."""
+    vals = []
+    for m in _YEARS.finditer(desc or ""):
+        n = m.group(1).lower()
+        n = _NUMS.get(n, None) if not n.isdigit() else int(n)
+        if n is None or n >= 15:
+            continue
+        ctx = desc[max(0, m.start() - 60): m.end() + 80].lower()
+        if not re.search(r"experience|professional|industry|working|work history|hands-on", ctx):
+            continue
+        if re.search(r"(graduat|degree|company|in business|founded|track record of)", desc[m.end(): m.end() + 25].lower()):
+            continue
+        vals.append(n)
     return min(vals) if vals else None
 
 
@@ -194,13 +220,41 @@ def fetch_ashby(c, days):
         comp = (j.get("compensation") or {}).get("compensationTierSummary", "") or ""
         jobs.append(dict(
             id=f"ash-{c['board']}-{j['id']}", company=c["name"], title=j["title"],
-            locations=[l for l in locs if l], loc_text=" | ".join(locs) + (" | remote united states" if j.get("isRemote") else ""),
+            locations=[l for l in locs if l], loc_text=" | ".join(locs) + (" | remote united states" if j.get("isRemote") and (
+                re.search(r"\b(us|usa|united states|remote)\b", " ".join(locs), re.I)
+                and not re.search(r"\b(uk|canada|india|europe|emea|apac|london|toronto)\b", " ".join(locs), re.I)) else ""),
             url=j.get("jobUrl", ""), date_posted=when.astimezone(PACIFIC).date().isoformat(),
             description=j.get("descriptionPlain", "") or text_of(j.get("descriptionHtml", "")), salary=comp))
     return jobs
 
 
-FETCHERS = {"workday": fetch_workday, "greenhouse": fetch_greenhouse, "ashby": fetch_ashby}
+def fetch_lever(c, days):
+    d = get_json(f"https://api.lever.co/v0/postings/{c['board']}?mode=json")
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    jobs = []
+    for j in d if isinstance(d, list) else []:
+        try:
+            when = datetime.fromtimestamp(j["createdAt"] / 1000, timezone.utc)
+        except Exception:
+            continue
+        if when < cutoff or not title_ok(j.get("text", "")):
+            continue
+        cat = j.get("categories") or {}
+        locs = [cat.get("location", "")] + list(cat.get("allLocations", []) or [])
+        desc = (j.get("descriptionPlain", "") or "") + "\n" + "\n".join(
+            f"{l.get('text', '')}\n{text_of(l.get('content', ''))}" for l in j.get("lists", []) or []) + "\n" + (j.get("additionalPlain", "") or "")
+        sr = j.get("salaryRange") or {}
+        sal = f"${sr.get('min', 0):,}-${sr.get('max', 0):,}" if sr.get("min") else ""
+        jobs.append(dict(
+            id=f"lv-{c['board']}-{j['id']}", company=c["name"], title=j.get("text", ""),
+            locations=[l for l in dict.fromkeys(locs) if l],
+            loc_text=" | ".join(locs) + (" | remote united states" if (j.get("workplaceType") == "remote" and j.get("country") == "US") else ""),
+            url=j.get("hostedUrl", ""), date_posted=when.astimezone(PACIFIC).date().isoformat(),
+            description=desc, salary=sal))
+    return jobs
+
+
+FETCHERS = {"workday": fetch_workday, "greenhouse": fetch_greenhouse, "ashby": fetch_ashby, "lever": fetch_lever}
 
 
 def load_seen():
@@ -219,14 +273,23 @@ def main():
     ap.add_argument("--days", type=int, default=1,
                     help="posted within N days (default 1 = last 24 hours; Greenhouse/Ashby use exact timestamps)")
     ap.add_argument("--out", default="watchlist_candidates.json")
+    ap.add_argument("--file", default=WATCHLIST, help="board list (data/watchlist.json or data/boards.json)")
     args = ap.parse_args()
 
-    wl = json.load(open(WATCHLIST))
+    is_watchlist = os.path.abspath(args.file) == os.path.abspath(WATCHLIST)
+    wl = json.load(open(args.file))
+    try:
+        from fetch_listings import load_excluded  # noqa: E402
+        excluded = load_excluded()
+    except Exception:
+        excluded = None
     seen = load_seen()
     out, report = [], {}
     for c in wl["companies"]:
         f = FETCHERS.get(c["type"])
         if not f:
+            continue
+        if excluded and excluded.search(c["name"]):
             continue
         try:
             jobs = f(c, args.days)
@@ -239,10 +302,11 @@ def main():
             if not b or j["id"] in seen or j["url"] in seen or job_key(j["company"], j["title"]) in seen:
                 continue
             y = yoe_min(j["description"])
-            if y is not None and y >= 3:
+            if y is not None and y > MAX_YOE:
                 continue
-            j.update(location_buckets=b, yoe_min=y, category="", sources=["watchlist"], watchlist=True,
-                     title_prescore=title_prescore(j["title"]) + 2,  # watchlist boost
+            j.update(location_buckets=b, yoe_min=y, category="", sources=["watchlist" if is_watchlist else "boards"],
+                     watchlist=is_watchlist,
+                     title_prescore=title_prescore(j["title"]) + (2 if is_watchlist else 0),  # watchlist boost
                      description=j["description"][:6000])
             out.append(j)
             kept += 1

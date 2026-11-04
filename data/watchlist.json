@@ -12,6 +12,7 @@
     {"name": "Okta (incl. Auth0)", "type": "greenhouse", "board": "okta"},
     {"name": "Allen Institute for AI", "type": "greenhouse", "board": "thealleninstitute"},
     {"name": "Snowflake", "type": "ashby", "board": "snowflake"},
+    {"name": "Nooks", "type": "ashby", "board": "nooks", "_note": "Added 2026-11-04 after Justin found its Seattle new-grad SWE req on LinkedIn"},
 
     {"name": "Meta", "type": "search", "domains": ["www.metacareers.com"]},
     {"name": "Google", "type": "search", "domains": ["www.google.com", "careers.google.com"]},
