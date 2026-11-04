@@ -12,6 +12,12 @@
       "match": "^tiktok\\b",
       "reason": "Asked to remove",
       "since": "2026-10-30"
+    },
+    {
+      "name": "ByteDance",
+      "match": "^bytedance\\b",
+      "reason": "Asked to remove",
+      "since": "2026-11-03"
     }
   ]
 }

@@ -13,8 +13,8 @@ A job list adding a req that the company posted weeks ago is **stale**, and stal
 not shown, just counted. If a page shows no posting date at all, fall back to the list's date and say so.
 The run is daily, weekends included, so nothing ages out between runs.
 
-**Excluded companies:** skip every company listed in `data/excluded_companies.json` (currently Amazon/AWS and
-TikTok). `fetch_listings.py` drops them automatically; also leave them out of web searches,
+**Excluded companies:** skip every company listed in `data/excluded_companies.json` (currently Amazon/AWS,
+TikTok and ByteDance). `fetch_listings.py` drops them automatically; also leave them out of web searches,
 the "Not read yet" table, and every section of the daily file.
 
 **No reading cap.** Read the description of **every** fresh candidate. Don't stop at a quota; this run is
