@@ -223,7 +223,7 @@ def parse_jobright(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--days", type=int, default=4, help="look back this many days (4 covers weekends)")
+    ap.add_argument("--days", type=int, default=1, help="look back this many days (1 = posted today or yesterday, Pacific; the run checks the exact posting date on each page)")
     ap.add_argument("--out", default="candidates.json")
     args = ap.parse_args()
 

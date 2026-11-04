@@ -32,12 +32,11 @@ clearance eligibility, no visa sponsorship, on-site only, travel >25%.
 | **Preferred / domain match** | 15 | Preferred quals met + overlap with his domains: AI agents/LLM/RAG, backend APIs, distributed systems/K8s, concurrency/C++, networking/security |
 | **ATS keyword coverage** | 15 | Of the JD's ~10 most important technical keywords, how many appear **literally** on the resume. A skill he has but doesn't name counts as a miss here, which is the point: it becomes a resume tweak. |
 | **Location** | 10 | Seattle area = 10 · Remote US = 9 · California / New York = 8 |
-| **Freshness** | 5 | Posted ≤2 days ago = 5 · 3–4 days = 3 · 5–7 days = 2 · older = 1 |
+| **Freshness** | 5 | Company posting date within the last 12 hours or dated today = 5 · 12–24 hours or dated yesterday = 3. Anything older is stale and never scored (see RUNBOOK freshness rule) |
 
 ## Tiers
-- **80+ Apply today** — strong match, apply within 48 hours. Target: **5–8 per day.** If fewer than 5
-  score 80+, the daily run keeps reading descriptions (up to 30); if still short, it tops the list up
-  with the best 75–79 jobs, clearly marked.
+- **80+ Apply today**: strong match, apply within 24 hours. **Every** fresh job scoring 80+ is listed; there's no
+  daily quota, and lower scores are never promoted to fill it.
 - **65–79 Worth a look** — good match with a gap or flag; tailor the resume first
 - **50–64 Stretch** — apply only if the company is a priority
 - **<50 Skip**

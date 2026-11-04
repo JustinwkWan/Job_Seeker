@@ -3,7 +3,8 @@
 An automated job search for **new-grad / entry-level Software Engineer, AI/ML Engineer, and Backend** roles in
 **Seattle, California, New York, and Remote (US)**.
 
-- **Every weekday at ~11am PT**, a scheduled Claude run pulls new postings, reads the job descriptions,
+- **Every day at ~10:45am PT** (weekends included), a scheduled Claude run pulls postings from the **last 24 hours**
+  (by the company's own posting date; older reqs are dropped as stale), reads **every** fresh job description,
   scores each one against `profile.md` with `rubric.md`, and commits a new file to `daily/`.
 - **On the first weekday of each month**, it writes a trends report to `monthly/`: which skills are rising,
   what's new, eligibility patterns, pay, and what to do about it.
@@ -11,7 +12,7 @@ An automated job search for **new-grad / entry-level Software Engineer, AI/ML En
 ## Where to look
 | File | What it is |
 |---|---|
-| `daily/YYYY-MM-DD.md` | That day's new postings, ranked: Apply today / Worth a look / Not eligible / Not read |
+| `daily/YYYY-MM-DD.md` | That day's fresh (≤24h) postings, ranked: Apply today (every 80+) / Worth a look / Not eligible / Not read |
 | `monthly/YYYY-MM.md` | Monthly skill-demand trends and recommendations |
 | `resume-review.md` | Standing resume fixes and keywords you have but don't list |
 | `rubric.md` | How jobs are scored (100 points + eligibility gate) |
@@ -19,7 +20,8 @@ An automated job search for **new-grad / entry-level Software Engineer, AI/ML En
 | `RUNBOOK.md` | Exact steps the scheduled runs follow; edit to change behavior |
 | `data/jobs.csv` | Every posting seen (deduped), with extracted skills; feeds the monthly report |
 | `data/skill_trends.csv` | Monthly skill counts for long-run trends |
-| `scripts/fetch_listings.py` | Pulls and filters listings from SimplifyJobs/New-Grad-Positions |
+| `scripts/fetch_listings.py` | Pulls and filters listings from the four GitHub job lists |
+| `scripts/fetch_watchlist.py` | Pulls entry-level roles straight from the watchlist companies' job boards |
 
 ## Sources
 Four community-maintained lists on GitHub, all updated daily, merged and deduplicated:

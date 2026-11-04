@@ -216,8 +216,8 @@ def load_seen():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--days", type=int, default=7,
-                    help="posted within N days (default 7; company boards are slower-moving than the lists)")
+    ap.add_argument("--days", type=int, default=1,
+                    help="posted within N days (default 1 = last 24 hours; Greenhouse/Ashby use exact timestamps)")
     ap.add_argument("--out", default="watchlist_candidates.json")
     args = ap.parse_args()
 
