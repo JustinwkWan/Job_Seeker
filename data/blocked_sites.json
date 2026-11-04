@@ -1,0 +1,11 @@
+{
+  "_note": "Websites the job search must never visit or link to. Don't WebFetch any URL on these domains, pass them as blocked_domains on every WebSearch, and never use them as the apply/description link in the daily file. scripts/fetch_listings.py blanks candidate URLs on these domains so the run finds the company's own posting instead. A domain also covers its subdomains. Remove an entry to allow that site again.",
+  "sites": [
+    {
+      "name": "Jobright",
+      "domain": "jobright.ai",
+      "reason": "Asked to block",
+      "since": "2026-11-03"
+    }
+  ]
+}

@@ -17,6 +17,15 @@ The run is daily, weekends included, so nothing ages out between runs.
 TikTok and ByteDance). `fetch_listings.py` drops them automatically; also leave them out of web searches,
 the "Not read yet" table, and every section of the daily file.
 
+**Blocked websites:** never visit or link any site in `data/blocked_sites.json` (currently jobright.ai).
+Don't WebFetch a URL on those domains, pass them as `blocked_domains` on **every** WebSearch, and never use
+one as a job's link anywhere in the daily file. `fetch_listings.py` blanks candidate URLs on blocked sites
+(`url: ""`). For those postings (mostly the ones sourced from jobright), go to the **company's own careers
+site / ATS** instead and read, date-check and score the job from there: search `"<company>" "<exact title>"`
+restricted to the ATS domains plus the company's careers domain (if you don't know it, one WebSearch for
+`"<company>" careers` finds it), and use that official page as the job's link. The jobright GitHub list (github.com)
+is still used as a candidate source; only jobright.ai itself is blocked.
+
 **No reading cap.** Read the description of **every** fresh candidate. Don't stop at a quota; this run is
 allowed to take longer and use more compute. Batch the work: several WebSearch / WebFetch calls per turn
 in parallel, or split the candidate list across subagents.
@@ -57,11 +66,13 @@ in parallel, or split the candidate list across subagents.
    rest by `title_prescore`. Job URLs from the candidates file can't be fetched directly; for each, WebSearch
    `"<company>" "<exact title>"` with `allowed_domains` set to the ATS domains above plus the company's careers
    domain if known (e.g. pinterestcareers.com, careersatdoordash.com, careers.microsoft.com), then WebFetch the
-   matching result. If no official page turns up, retry once without `allowed_domains`; an aggregator copy
-   (builtin, techstars, anitab, freehire, employbl, jobright, general-catalyst/8vc job boards) is fine, but check the
-   location matches and use the company's posting date, not the aggregator's.
+   matching result. If no official page turns up, retry once without `allowed_domains` (still with the blocked
+   sites as `blocked_domains`); an aggregator copy (builtin, techstars, anitab, freehire, employbl,
+   general-catalyst/8vc job boards) is fine, but check the location matches and use the company's posting date,
+   not the aggregator's. Never fall back to a blocked site.
    - **First check the posting date.** Older than 24 hours → **stale**: stop reading, record it, move on.
-   - If a page won't load or has no requirements text after the retry, list it under "Not read yet".
+   - If a page won't load or has no requirements text after the retry, list it under "Not read yet"
+     (with no link if the only one found is on a blocked site).
    - Otherwise extract: posting date, required quals, preferred quals, YOE, degree, graduation window,
      location, salary, clearance/export control, and every named technology.
 

@@ -13,7 +13,8 @@ Sources (all GitHub repos, updated daily):
   jobright    jobright-ai/2026-Software-Engineer-New-Grad (README.md table; large, noisy)
 
 The same job often appears in several lists; it is merged into one candidate and every
-source is recorded. Does NOT write jobs.csv: the agent appends after reading/scoring.
+source is recorded. Links on sites in data/blocked_sites.json are blanked (url = "").
+Does NOT write jobs.csv: the agent appends after reading/scoring.
 """
 import argparse
 import csv
@@ -30,6 +31,7 @@ from datetime import datetime, timedelta, timezone
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JOBS_CSV = os.path.join(REPO_ROOT, "data", "jobs.csv")
 EXCLUDED_JSON = os.path.join(REPO_ROOT, "data", "excluded_companies.json")
+BLOCKED_JSON = os.path.join(REPO_ROOT, "data", "blocked_sites.json")
 PACIFIC = timezone(timedelta(hours=-8))  # date math only; a day either way doesn't matter
 
 SOURCES = {
@@ -144,6 +146,19 @@ def load_excluded():
     return re.compile("|".join(f"(?:{p})" for p in pats), re.I) if pats else None
 
 
+def load_blocked():
+    """Domains from data/blocked_sites.json that must never be visited or linked."""
+    if not os.path.exists(BLOCKED_JSON):
+        return []
+    with open(BLOCKED_JSON) as f:
+        return [s["domain"].lower().strip(".") for s in json.load(f).get("sites", []) if s.get("domain")]
+
+
+def url_blocked(url: str, blocked) -> bool:
+    host = re.sub(r"^[a-z]+://", "", (url or "").lower()).split("/")[0].split(":")[0]
+    return any(host == d or host.endswith("." + d) for d in blocked)
+
+
 def clone(url: str) -> str:
     d = tempfile.mkdtemp(prefix="jobs_")
     subprocess.run(["git", "clone", "--depth", "1", "--quiet", url, d], check=True)
@@ -242,6 +257,10 @@ def main():
 
     seen = load_seen()
     excluded = load_excluded()
+    blocked = load_blocked()
+    for x in raw:  # never hand the run a link on a blocked site; it finds the company's own page instead
+        if url_blocked(x["url"], blocked):
+            x["url"] = ""
     cutoff = datetime.now(PACIFIC).date() - timedelta(days=args.days)
     merged = {}
     for x in raw:
@@ -265,9 +284,8 @@ def main():
             m["sources"] = sorted(set(m["sources"]) | {x["source"]})
             m["location_buckets"] = sorted(set(m["location_buckets"]) | set(buckets))
             m["salary"] = m["salary"] or x["salary"]
-            # prefer a direct ATS link over an aggregator/redirect link
-            if ("jobright.ai" in m["url"] or "go.vansh" in m["url"]) and not (
-                    "jobright.ai" in x["url"] or "go.vansh" in x["url"]):
+            # prefer a direct ATS link over a redirect link or a blanked (blocked-site) one
+            if x["url"] and (not m["url"] or "go.vansh" in m["url"]) and "go.vansh" not in x["url"]:
                 m["url"] = x["url"]
             continue
         merged[key] = dict(
