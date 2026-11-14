@@ -98,7 +98,6 @@
     {"name": "Runway", "type": "ashby", "board": "runway"},
     {"name": "Samsara", "type": "greenhouse", "board": "samsara"},
     {"name": "Scale AI", "type": "greenhouse", "board": "scaleai"},
-    {"name": "Shield AI", "type": "lever", "board": "shieldai"},
     {"name": "Sierra", "type": "ashby", "board": "sierra"},
     {"name": "Sigma Computing", "type": "greenhouse", "board": "sigmacomputing"},
     {"name": "Smartsheet", "type": "greenhouse", "board": "smartsheet"},

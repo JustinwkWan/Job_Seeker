@@ -4,7 +4,7 @@ The scoring agent reads this file every run. Edit it when your resume or targets
 
 ## Targets
 - **Roles:** New-grad / entry-level Software Engineer, AI/ML Engineer, Backend Engineer
-- **Locations:** Seattle area (incl. Bellevue, Redmond, Kirkland), anywhere in California, New York (NYC or state), Remote (US)
+- **Locations:** Seattle area (incl. Bellevue, Redmond, Kirkland), anywhere in California, New York (NYC or state), Remote (US). Exception: Shield AI (top target) in any US office.
 - **Level:** New grad, Software Engineer I, early career, 0–2 years
   - Also plain **Software Engineer** / **Backend Engineer** titles (any level wording except Senior/Staff/Principal/Lead/III+)
     whenever the description asks for **2 years of experience or less**.

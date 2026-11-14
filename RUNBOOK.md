@@ -47,7 +47,10 @@ in parallel, or split the candidate list across subagents.
    This queries Workday, Greenhouse, and Ashby boards directly (exact first-published timestamps on
    Greenhouse/Ashby) and returns entry-level software roles in his locations **with the full job description
    included**, so score these from the `description` field without fetching the page. Watchlist jobs go first
-   and are labeled ⭐ Watchlist in the daily file. Takes ~2 minutes. For each `"type": "search"` company
+   and are labeled ⭐ Watchlist in the daily file. Takes ~2 minutes. **Shield AI is Justin's top target**
+   (`"any_us_location": true`): its software reqs in any US office are kept with location bucket `Other US`
+   (Arlington VA, Dallas, Boston, "United States"), so score and list them like any other watchlist job and
+   note the office plus any SECRET-clearance or in-person requirement in the notes. For each `"type": "search"` company
    (Meta, Google, Stripe, Uber, Oracle, PACCAR, Alaska Airlines, Costco, Redfin), run one WebSearch such as
    `"<company>" software engineer (new grad OR "early career" OR "entry level" OR university) Seattle`
    with `allowed_domains` set to that company's `domains`, and keep only postings from the last 24 hours.
