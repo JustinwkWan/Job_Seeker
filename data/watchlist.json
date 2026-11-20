@@ -1,5 +1,5 @@
 {
-  "_note": "Companies checked every daily run. type=workday/greenhouse/ashby are pulled by scripts/fetch_watchlist.py; type=search are looked up with WebSearch (see RUNBOOK.md). Add a company by copying an entry.",
+  "_note": "Companies checked every daily run. Set \"any_us_location\": true on a company to keep its postings in any US location, not only Justin's usual ones. type=workday/greenhouse/ashby are pulled by scripts/fetch_watchlist.py; type=search are looked up with WebSearch (see RUNBOOK.md). Add a company by copying an entry.",
   "companies": [
     {"name": "Boeing", "type": "workday", "tenant": "boeing", "wd": "wd1", "sites": ["EXTERNAL_CAREERS"]},
     {"name": "Blue Origin", "type": "workday", "tenant": "blueorigin", "wd": "wd5", "sites": ["blueorigin"]},
@@ -13,6 +13,7 @@
     {"name": "Allen Institute for AI", "type": "greenhouse", "board": "thealleninstitute"},
     {"name": "Snowflake", "type": "ashby", "board": "snowflake"},
     {"name": "Nooks", "type": "ashby", "board": "nooks", "_note": "Added 2026-11-04 after Justin found its Seattle new-grad SWE req on LinkedIn"},
+    {"name": "Shield AI", "type": "ashby", "board": "shield", "any_us_location": true, "_note": "Added 2026-11-13: Justin's top target. Moved from boards.json (its Lever board is empty; Shield AI posts on Ashby). any_us_location keeps reqs in any US office (Arlington VA, Dallas, Boston, 'United States'), not only his usual locations"},
 
     {"name": "Meta", "type": "search", "domains": ["www.metacareers.com"]},
     {"name": "Google", "type": "search", "domains": ["www.google.com", "careers.google.com"]},

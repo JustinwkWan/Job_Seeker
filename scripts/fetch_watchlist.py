@@ -55,6 +55,9 @@ CALIF = r"california|\bca\b|us-ca|san francisco|bay area|san jose|sunnyvale|moun
         r"menlo park|santa clara|los angeles|irvine|san diego|el segundo|long beach|oakland|cupertino"
 NEWYORK = r"new york|\bny\b|nyc|us-ny"
 REMOTE_US = r"remote.{0,25}(us|usa|united states|u\.s\.)|(us|usa|united states).{0,25}remote|^remote$"
+# for companies with "any_us_location": true (a US office outside Justin's usual locations)
+ANY_US = r"united states|\busa?\b|, ?[a-z]{2}, ?us\b|\b(tx|va|ma|dc|ks|co|az|il|ga|fl|nc|md|or|ut|mi|oh|pa)\b|" \
+         r"washington,? d\.?c|arlington|dallas|boston|austin|denver|chicago|atlanta|wichita"
 
 
 def buckets_for(text: str):
@@ -298,7 +301,10 @@ def main():
             continue
         kept = 0
         for j in jobs:
-            b = buckets_for(j.pop("loc_text"))
+            loc_text = j.pop("loc_text")
+            b = buckets_for(loc_text)
+            if not b and c.get("any_us_location") and re.search(ANY_US, loc_text.lower()):
+                b = ["Other US"]
             if not b or j["id"] in seen or j["url"] in seen or job_key(j["company"], j["title"]) in seen:
                 continue
             y = yoe_min(j["description"])
